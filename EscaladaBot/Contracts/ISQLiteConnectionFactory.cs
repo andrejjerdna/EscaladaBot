@@ -1,8 +1,9 @@
-﻿using Npgsql;
+﻿using Microsoft.Data.Sqlite;
+using Npgsql;
 
 namespace EscaladaBot.Contracts;
 
 public interface ISQLiteConnectionFactory
 {
-    NpgsqlConnection GetConnection();
+    SqliteConnection GetConnection();
 }

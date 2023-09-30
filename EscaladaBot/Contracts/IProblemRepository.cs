@@ -2,7 +2,8 @@
 
 namespace EscaladaBot.Contracts;
 
-public interface ITraceRepository
+public interface IProblemRepository
 {
     Task<int> AddTrace(CreateTraceRequest request);
+    Task<Problem?> GetTrace(int problemId);
 }

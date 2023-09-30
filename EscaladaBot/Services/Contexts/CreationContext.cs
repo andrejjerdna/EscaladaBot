@@ -2,62 +2,39 @@
 using EscaladaBot.Contracts;
 using EscaladaBot.Services.BotCommands;
 
-namespace EscaladaBot.Services;
+namespace EscaladaBot.Services.Contexts;
 
-public class CreationContext : IContext
+public sealed class CreationContext : IContext
 {
-    private readonly IProblemRepository _problemRepository;
+    private readonly ICommandBuilder _commandBuilder;
     private readonly IProblemCreatorStateStore _problemCreatorStateStore;
 
-    public CreationContext(IProblemRepository problemRepository, IProblemCreatorStateStore problemCreatorStateStore)
+    public CreationContext(IProblemCreatorStateStore problemCreatorStateStore, ICommandBuilder commandBuilder)
     {
-        _problemRepository = problemRepository;
         _problemCreatorStateStore = problemCreatorStateStore;
+        _commandBuilder = commandBuilder;
     }
 
     public async Task<IReadOnlyCollection<IBotCommand>> GetCurrentCommands(long chatId)
     {
-            var state = await _problemCreatorStateStore.GetState(chatId);
-                
-            return state.State switch
-            {
-                TraceCreatorState.Creation
-                    => new List<IBotCommand>
-                    {
-                        new AddImagesStartCommand()
-                    },
+        var state = await _problemCreatorStateStore.GetState(chatId);
 
-                TraceCreatorState.Created
-                    => new List<IBotCommand>
-                    {
-                        new AddImagesCommand(_problemCreatorStateStore),
-                        new CreateCommand(_problemRepository, _problemCreatorStateStore),
-                        new EndCommand(_problemCreatorStateStore)
-                    },
-                _ => throw new Exception("Unknown state")
-            };
-    }
+        return state.State switch
+        {
+            TraceCreatorState.NotExists
+                => new List<IBotCommand>
+                {
+                    _commandBuilder.GetCommand<AddImagesStartCommand>()
+                },
 
-    public async Task CommitState(long chatId)
-    {
-            var traceCreatorState = await _problemCreatorStateStore.GetState(chatId);
-
-            switch (traceCreatorState.State)
-            {
-                case TraceCreatorState.Creation:
-                    await _problemCreatorStateStore.SetState(chatId, TraceCreatorState.Created);
-                    break;
-                case TraceCreatorState.Created:
-                    await _problemCreatorStateStore.SetState(chatId,TraceCreatorState.Described);
-                    break;
-                default:
-                    await _problemCreatorStateStore.Remove(chatId);
-                    break;
-            }
-    }
-
-    public async Task Remove(long chatId)
-    {
-        await _problemCreatorStateStore.Remove(chatId);
+            TraceCreatorState.Creation
+                => new List<IBotCommand>
+                {
+                    _commandBuilder.GetCommand<AddImagesCommand>(),
+                    _commandBuilder.GetCommand<CreateCommand>(),
+                    _commandBuilder.GetCommand<EndCommand>()
+                },
+            _ => throw new Exception("Unknown state")
+        };
     }
 }

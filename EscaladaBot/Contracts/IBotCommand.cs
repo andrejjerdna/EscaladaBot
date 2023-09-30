@@ -5,7 +5,8 @@ namespace EscaladaApi.Contracts;
 
 public interface IBotCommand
 {
-    Task Start(ITelegramBotClient botClient, Update update);
-    Task<bool> Create(ITelegramBotClient botClient, Update update);
+    string Name { get; }
+    Task<bool> Run(ITelegramBotClient botClient, Update update);
+    Task NotCompleted(ITelegramBotClient botClient, Update update);
     Task Error(ITelegramBotClient botClient, Update update);
 }

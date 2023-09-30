@@ -1,3 +1,6 @@
 ﻿namespace EscaladaBot.Services.Models;
 
-public record CreateTraceRequest();
+public record CreateTraceRequest(
+    string Author,
+    Guid FileId,
+    DateTime TimeStamp);

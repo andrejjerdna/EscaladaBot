@@ -1,6 +1,6 @@
 ﻿namespace EscaladaBot.Services.Models;
 
-public class RegisterModel
-{
-    
-}
+public record RegisterModel(long ChatId,
+    string User,
+    string Login,
+    DateTime DateTime);

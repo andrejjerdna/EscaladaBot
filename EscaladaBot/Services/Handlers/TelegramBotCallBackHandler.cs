@@ -2,9 +2,9 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace EscaladaBot.Services;
+namespace EscaladaBot.Services.Handlers;
 
-public class TelegramBotCallBackHandler : ITelegramBotHandler
+public sealed class TelegramBotCallBackHandler : ITelegramBotHandler
 {
     private readonly ITelegramBotHandler _nextHandler;
     private readonly IRegisterRepository _registerRepository;
@@ -39,7 +39,7 @@ public class TelegramBotCallBackHandler : ITelegramBotHandler
         
         await botClient.SendTextMessageAsync(
             chatId: model.ChatId,
-            text: $"{model.User} хочет прийти {model.DateTime.ToString("M")}", cancellationToken: cancellationToken);
+            text: $"{model.User} (@{model.Login}) хочет прийти {model.DateTime.ToString("M")}", cancellationToken: cancellationToken);
     }
 
     public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)

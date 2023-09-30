@@ -1,35 +1,44 @@
 ﻿using EscaladaBot.Contracts;
+using EscaladaBot.Services.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace EscaladaBot.Services;
+namespace EscaladaBot.Services.Handlers;
 
-public class TelegramBotSubscribeHandler : ITelegramBotHandler
+public sealed class TelegramBotSubscribeHandler : ITelegramBotHandler
 {
     private readonly ITelegramBotHandler _nextHandler;
+    private readonly ISubscribeRepository _repository;
 
-    public TelegramBotSubscribeHandler(ITelegramBotHandler nextHandler)
+    private const string SubscribeMessage = "Если появится новая трасса, то я пришлю ее тебе!";
+    private const string UnsubscribeMessage = "Жаль, теперь ты не увидишь новых трасс...";
+
+    public TelegramBotSubscribeHandler(ITelegramBotHandler nextHandler, ISubscribeRepository repository)
     {
         _nextHandler = nextHandler;
+        _repository = repository;
     }
 
-    public Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
+    public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        if (update.Message?.Chat.Id == null)
+        switch (update.Message?.Text)
         {
-            return _nextHandler.HandleUpdateAsync(botClient, update, cancellationToken);
+            case "/subscribe":
+                await _repository.Subscribe(update.Message.Chat.Id, update.Message.From?.Username ?? "Unknown");
+                await botClient.SendMessage(update.Message.Chat.Id, SubscribeMessage);
+                return;
+            case "/unsubscribe":
+                await _repository.Unsubscribe(update.Message.Chat.Id);
+                await botClient.SendMessage(update.Message.Chat.Id, UnsubscribeMessage);
+                return;
+            default:
+                await _nextHandler.HandleUpdateAsync(botClient, update, cancellationToken);
+                return;
         }
-        
-        if (update.Message?.Text is not "subscribe" and not "unsubscribe")
-        {
-            return _nextHandler.HandleUpdateAsync(botClient, update, cancellationToken);
-        }
-        
-        
     }
 
     public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        return _nextHandler.HandleErrorAsync(botClient, exception, cancellationToken);
     }
 }

@@ -1,22 +1,23 @@
 ﻿using EscaladaApi.Contracts;
 using EscaladaBot.Contracts;
+using EscaladaBot.Services.BotCommands;
 
-namespace EscaladaBot.Services;
+namespace EscaladaBot.Services.Contexts;
 
-public class UnknownContext : IContext
+public sealed class UnknownContext : IContext
 {
-    public Task<IReadOnlyCollection<IBotCommand>> GetCurrentCommands(long chatId)
+    private readonly ICommandBuilder _commandBuilder;
+
+    public UnknownContext(ICommandBuilder commandBuilder)
     {
-        throw new NotImplementedException();
+        _commandBuilder = commandBuilder;
     }
 
-    public Task CommitState(long chatId)
+    public async Task<IReadOnlyCollection<IBotCommand>> GetCurrentCommands(long chatId)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task Remove(long chatId)
-    {
-        throw new NotImplementedException();
+        return await Task.FromResult(new List<IBotCommand>
+            {
+                _commandBuilder.GetCommand<UnknownCommand>()
+            });
     }
 }

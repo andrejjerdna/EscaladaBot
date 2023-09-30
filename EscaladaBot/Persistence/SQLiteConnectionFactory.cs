@@ -1,19 +1,20 @@
 ﻿using EscaladaBot.Contracts;
+using Microsoft.Data.Sqlite;
 using Npgsql;
 
 namespace EscaladaBot.Persistence;
 
-public class PostgresConnectionFactory : IPostgresConnectionFactory
+public class SQLiteConnectionFactory : ISQLiteConnectionFactory
 {
     private readonly string _connectionString;
     
-    public PostgresConnectionFactory(string connectionString)
+    public SQLiteConnectionFactory(string connectionString)
     {
         _connectionString = connectionString;
     }
     
-    public NpgsqlConnection GetConnection()
+    public SqliteConnection GetConnection()
     {
-        return new NpgsqlConnection(_connectionString);
+        return new SqliteConnection(_connectionString);
     }
 }

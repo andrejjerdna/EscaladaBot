@@ -1,56 +1,95 @@
 ﻿using EscaladaApi.Contracts;
 using EscaladaBot.Contracts;
+using EscaladaBot.Services.Extensions;
+using EscaladaBot.Services.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
-namespace EscaladaBot.Services;
+namespace EscaladaBot.Services.BotCommands;
 
 public sealed class CreateCommand : IBotCommand
 {
-    private readonly ITraceRepository _repository;
+    private readonly ISubscribeRepository _subscribeRepository;
+    private readonly IProblemViewer _problemViewer;
+    private readonly IProblemRepository _repository;
+    private readonly IProblemCreatorStateStore _problemCreatorStateStore;
 
-    public CreateCommand(ITraceRepository repository)
+    public string Name => nameof(CreateCommand);
+    
+    public CreateCommand(IProblemRepository repository, 
+        IProblemCreatorStateStore problemCreatorStateStore, 
+        ISubscribeRepository subscribeRepository, 
+        IProblemViewer problemViewer)
     {
         _repository = repository;
+        _problemCreatorStateStore = problemCreatorStateStore;
+        _subscribeRepository = subscribeRepository;
+        _problemViewer = problemViewer;
     }
 
-    public Task Start(ITelegramBotClient botClient, Update update)
+    public async Task<bool> Run(ITelegramBotClient botClient, Update update)
     {
-        return Task.CompletedTask;
-    }
-
-    public async Task<bool> Create(ITelegramBotClient botClient, Update update)
-    {
-        var message = update.Message?.Text;
-
-        if(string.IsNullOrWhiteSpace(message))
-            return false;
-
-        var command = update.Message?.Entities?.FirstOrDefault();
+        var chatId = update?.Message?.Chat.Id;
         
-        if(command?.Type != MessageEntityType.BotCommand)
-            return false;
-        
-        if(update.Message?.EntityValues?.FirstOrDefault() != "/addnew")
+        if(!chatId.HasValue)
             return false;
 
-        var newTraceId = await _repository.AddTrace(update.Message?.From?.Username ?? "ХЗ");
+        var state = await _problemCreatorStateStore.GetState(chatId.Value);
+
+        var author = GetAuthor(update);
+
+        var newTraceId = await _repository.AddTrace(
+            new CreateTraceRequest(
+                author,
+                state.FolderId,
+                DateTime.UtcNow));
 
         if (newTraceId < 0)
             return false;
         
+        await _problemCreatorStateStore.CommitState(chatId.Value);
+
         await botClient.SendTextMessageAsync(
-            chatId: update.Message.Chat.Id,
+            chatId: chatId.Value,
             text: $"Круто, у нас есть новая трасса! \nНомер трассы: {newTraceId}.");
+
+        var allSubscribers = await _subscribeRepository.GetAll();
+
+        await _problemViewer.ViewProblem(botClient, allSubscribers, newTraceId, true);
         
         return true;
     }
 
+    public async Task NotCompleted(ITelegramBotClient botClient, Update update)
+    {
+        var chatId = update?.Message?.Chat.Id;
+        
+        if(!chatId.HasValue)
+            return;
+        
+        await _problemCreatorStateStore.Remove(chatId.Value);
+
+        await botClient.SendMessage(chatId.Value, 
+            "Сохранение трассы завершилось неудачей. Начни процесс создания трассы сначала.");
+    }
+
     public async Task Error(ITelegramBotClient botClient, Update update)
     {
-        await botClient.SendTextMessageAsync(
-            chatId: update.Message.Chat.Id,
-            text: $"К сожалению создать трассу не удалось((( Если не получитя еще раз, напиши: @andrejjerdna");
+        var chatId = update?.Message?.Chat.Id;
+        
+        if(!chatId.HasValue)
+            return;
+        
+        await _problemCreatorStateStore.Remove(chatId.Value);
+        
+        await botClient.SendErrorMessage(chatId.Value);
+    }
+
+    private static string GetAuthor(Update? update)
+    {
+        if( update?.Message?.From == null)
+            return string.Empty;
+        
+        return update.Message.From.FirstName + " " + update.Message.From.LastName;
     }
 }

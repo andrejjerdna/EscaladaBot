@@ -1,6 +1,7 @@
 ﻿namespace EscaladaBot.Contracts;
 
-public class IFileRepository
+public interface IFileRepository
 {
-    
+    Task<Guid> AddFile(string filePath);
+    Task<string> GetFilePath(Guid id);
 }

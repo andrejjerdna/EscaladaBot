@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using EscaladaBot.Contracts;
-using EscaladaBot.Services;
 using EscaladaBot.Services.Models;
 using Microsoft.Data.Sqlite;
 
@@ -23,8 +22,15 @@ public class ProblemRepository : IProblemRepository
             connection = _connectionFactory.GetConnection();
 
             return await connection.QuerySingleAsync<int>(
-                @"INSERT INTO problem (author) VALUES (@author) RETURNING id",
-                new { request.Author });
+                @"INSERT INTO problem (author, file_id, timeStamp) 
+                        VALUES (@author, @fileId, @timeStamp) 
+                        RETURNING id",
+                new
+                {
+                    author = request.Author, 
+                    fileId = request.FileId.ToString(), 
+                    timeStamp = request.TimeStamp
+                });
         }
         catch (Exception e)
         {
@@ -37,20 +43,28 @@ public class ProblemRepository : IProblemRepository
         }
     }
 
-    public async Task SetDescription(long id, string description)
+    public async Task<Problem> GetTrace(int problemId)
     {
+        SqlMapper.AddTypeHandler(new MySqlGuidTypeHandler());
+        
         SqliteConnection connection = null;
         try
         {
             connection = _connectionFactory.GetConnection();
 
-            await connection.ExecuteAsync(
-                @"UPDATE problem SET description = @description WHERE id = @id",
-                new { id, description });
+            return await connection.QueryFirstOrDefaultAsync<Problem>(
+                @"SELECT id, author, file_id AS FileId, timeStamp
+                        FROM problem
+                        WHERE id = @id;",
+                new
+                {
+                    id = problemId, 
+                });
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
+            return null;
         }
         finally
         {

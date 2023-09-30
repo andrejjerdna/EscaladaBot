@@ -1,26 +1,21 @@
 ﻿using EscaladaBot.Contracts;
-using EscaladaBot.Services.Contexts;
 using EscaladaBot.Services.Models;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
-namespace EscaladaBot.Services;
+namespace EscaladaBot.Services.Handlers;
 
-public class TelegramBotHandler : ITelegramBotHandler
+public sealed class TelegramBotHandler : ITelegramBotHandler
 {
-    private readonly IRulesProvider _rulesProvider;
     private readonly IContextSwitcher _contextSwitcher;
     private readonly ILogger<TelegramBotHandler> _logger;
     
     private IContext _context;
     
-    public TelegramBotHandler(IRulesProvider rulesProvider,
-        IContextSwitcher contextSwitcher,
+    public TelegramBotHandler(IContextSwitcher contextSwitcher,
         ILogger<TelegramBotHandler> logger)
     {
-        _rulesProvider = rulesProvider;
         _logger = logger;
         _contextSwitcher = contextSwitcher;
     }
@@ -52,11 +47,6 @@ public class TelegramBotHandler : ITelegramBotHandler
         
         try
         {
-            // var canCreateTrace = await _rulesProvider.CanCreateTrace(chatId, update.Message.Text);
-            //
-            // if(!canCreateTrace)
-            //     return;
-           
             var currentCommands = await _context.GetCurrentCommands(chatId);
             
             if(!currentCommands.Any())

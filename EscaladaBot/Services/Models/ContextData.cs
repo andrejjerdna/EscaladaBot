@@ -1,3 +1,10 @@
-﻿namespace EscaladaBot.Services.Models;
+﻿using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
-public record ContextData();
+namespace EscaladaBot.Services.Models;
+
+public record ContextData(long ChatId,
+    string? Message,
+    string? BotCommand,
+    MessageType? MessageType,
+    Message? CallbackQueryMessage);
