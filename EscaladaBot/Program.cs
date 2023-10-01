@@ -21,7 +21,9 @@ var config = new ConfigurationBuilder()
     .AddUserSecrets<Program>()
     .Build();
 
-var apiToken = config.GetValue<string>("Telegram:ApiToken") ?? throw new Exception();
+var apiToken = Environment.GetEnvironmentVariable("TELEGRAM_API_TOKEN")
+               ?? config.GetValue<string>("Telegram:ApiToken")
+               ?? throw new Exception();
 
 builder.Services.AddSingleton<ISQLiteConnectionFactory>(s =>
     new SQLiteConnectionFactory("Data Source=escalabot.db"));
