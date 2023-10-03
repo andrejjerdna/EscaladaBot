@@ -19,3 +19,9 @@ CREATE TABLE subscribe_user
     chat_id BIGINT UNIQUE NOT NULL PRIMARY KEY,
     user_name VARCHAR(300)
 );
+
+CREATE TABLE admin
+(
+    chat_id BIGINT UNIQUE NOT NULL PRIMARY KEY,
+    user_name VARCHAR(300)
+);

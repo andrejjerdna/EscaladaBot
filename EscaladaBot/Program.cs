@@ -1,8 +1,8 @@
-﻿using EscaladaApi.Contracts;
+﻿using Amazon.Runtime;
+using EscaladaApi.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using EscaladaApi.Persistence;
-using EscaladaBot;
 using EscaladaBot.Contracts;
 using EscaladaBot.HostedServices;
 using EscaladaBot.Persistence;
@@ -10,26 +10,19 @@ using EscaladaBot.Services;
 using EscaladaBot.Services.BotCommands;
 using EscaladaBot.Services.Contexts;
 using EscaladaBot.Services.Handlers;
-using Microsoft.Extensions.Configuration;
+using EscaladaBot.Services.Helpers;
 using Serilog;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-var config = new ConfigurationBuilder()
-    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-    .AddJsonFile("appsettings.json")
-    .AddUserSecrets<Program>()
-    .Build();
-
-var apiToken = Environment.GetEnvironmentVariable("TELEGRAM_API_TOKEN")
-               ?? config.GetValue<string>("Telegram:ApiToken")
-               ?? throw new Exception();
-
 builder.Services.AddSingleton<ISQLiteConnectionFactory>(s =>
     new SQLiteConnectionFactory("Data Source=escalabot.db"));
 
+builder.Services.AddSingleton(new BasicAWSCredentials(
+    SecretsHelper.GetS3AccessKey, SecretsHelper.GetS3SecretAccessKey));
+
 builder.Services.AddSingleton<ITelegramConnectionFactory>(s =>
-    new TelegramConnectionFactory(apiToken));
+    new TelegramConnectionFactory(SecretsHelper.GetTelegramApiToken));
 
 builder.Services.AddSingleton<ITelegramBotHandler, TelegramBotHandler>();
 builder.Services.Decorate<ITelegramBotHandler, TelegramBotCallBackHandler>();
@@ -43,6 +36,9 @@ builder.Services.AddSingleton<ICommandBuilder, CommandBuilder>();
 builder.Services.AddSingleton<IRegisterRepository, RegisterRepository>();
 builder.Services.AddSingleton<IProblemRepository, ProblemRepository>();
 builder.Services.AddSingleton<ISubscribeRepository, SubscribeRepository>();
+builder.Services.AddSingleton<IAdminRepository, AdminRepository>();
+
+builder.Services.AddTransient<IFileStore, FileStore>();
 
 builder.Services.AddSingleton<IProblemCreatorStateStore, ProblemCreatorStateStore>();
 builder.Services.AddSingleton<IContextSwitcher, ContextSwitcher>();

@@ -23,7 +23,8 @@ public class SubscribeRepository : ISubscribeRepository
 
             var id = await connection.ExecuteAsync(
                 @"INSERT INTO subscribe_user (chat_id, user_name) 
-                        VALUES (@chatId, @user)", new {chatId, user});
+                        VALUES (@chatId, @user) 
+                        ON CONFLICT (chat_id) DO NOTHING", new {chatId, user});
         }
         catch (Exception e)
         {

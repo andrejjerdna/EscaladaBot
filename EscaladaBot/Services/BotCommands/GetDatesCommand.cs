@@ -34,7 +34,7 @@ public sealed class GetDatesCommand : IBotCommand
                 => InlineKeyboardButton.WithCallbackData(
                     text: GetBeautifyDate(d), 
                     callbackData: GetCommandDate(d, 
-                        430055377, 
+                        update.Message.Chat.Id, 
                         update.Message.From.FirstName + " " + update.Message.From.LastName,
                         update.Message.From.Username)))
             .Chunk(2)

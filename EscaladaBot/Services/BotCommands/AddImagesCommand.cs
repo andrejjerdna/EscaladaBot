@@ -1,23 +1,24 @@
 ﻿using EscaladaApi.Contracts;
 using EscaladaBot.Contracts;
 using EscaladaBot.Services.Extensions;
-using EscaladaBot.Services.Helpers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using File = System.IO.File;
 
 namespace EscaladaBot.Services.BotCommands;
 
 public sealed class AddImagesCommand : IBotCommand
 {
     private readonly IProblemCreatorStateStore _problemCreatorStateStore;
+    private readonly IFileStore _fileStore;
 
-    public AddImagesCommand(IProblemCreatorStateStore problemCreatorStateStore)
+    public AddImagesCommand(IProblemCreatorStateStore problemCreatorStateStore, IFileStore fileStore)
     {
         _problemCreatorStateStore = problemCreatorStateStore;
+        _fileStore = fileStore;
     }
 
     public string Name => nameof(AddImagesCommand);
+    
     public async Task<bool> Run(ITelegramBotClient botClient, Update update)
     {
         var chatId = update?.Message?.Chat.Id;
@@ -32,31 +33,24 @@ public sealed class AddImagesCommand : IBotCommand
 
         var folderId = Guid.NewGuid();
 
-        var newPath = PathHelper.GetFolderPath(folderId.ToString());
-
         await _problemCreatorStateStore.AddFileFolderId(chatId.Value, folderId);
 
-        if (!Directory.Exists(newPath))
-        {
-            Directory.CreateDirectory(newPath);
-        }
-
         var file = await botClient.GetFileAsync(photo.FileId);
-        var ext = Path.GetExtension(file.FilePath);
-        var filePath = PathHelper.GetFilePath(newPath, Guid.NewGuid().ToString(), ext);
 
         if (file.FilePath == null)
             throw new Exception();
-
-        await using Stream fileStream = File.Create(filePath);
+        
+        await using var memStream = new MemoryStream();
+        
         await botClient.DownloadFileAsync(
             filePath: file.FilePath,
-            destination: fileStream,
+            destination: memStream,
             cancellationToken: CancellationToken.None);
-        fileStream.Close();
+
+        await _fileStore.SaveFile(memStream, folderId, file.FilePath);
 
         await _problemCreatorStateStore.CommitState(chatId.Value);
-
+        
         return true;
     }
 

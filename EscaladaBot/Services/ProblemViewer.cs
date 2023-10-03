@@ -9,10 +9,12 @@ namespace EscaladaBot.Services;
 public sealed class ProblemViewer : IProblemViewer
 {
     private readonly IProblemRepository _repository;
+    private readonly IFileStore _fileStore;
 
-    public ProblemViewer(IProblemRepository repository)
+    public ProblemViewer(IProblemRepository repository, IFileStore fileStore)
     {
         _repository = repository;
+        _fileStore = fileStore;
     }
 
     public async Task ViewProblem(ITelegramBotClient botClient, 
@@ -24,22 +26,16 @@ public sealed class ProblemViewer : IProblemViewer
 
         if (problem == null)
             return;
+
+        var files = await _fileStore.GetFiles(problem.FileId);
         
-        var newPath = PathHelper.GetFolderPath(problem.FileId.ToString());
-
-        if (!Directory.Exists(newPath))
-            return;
-
-        var files = Directory.GetFiles(newPath);
-
         foreach (var chatId in chatIds)
         {
             foreach (var file in files)
             {
-                await using Stream stream = System.IO.File.OpenRead(file);
                 await botClient.SendPhotoAsync(
                     chatId: chatId,
-                    photo: InputFile.FromStream(stream: stream, fileName: Path.GetFileName(file)),
+                    photo: InputFile.FromStream(stream: file),
                     caption: GetCaption(problem, isNewProblem));
             }
         }
