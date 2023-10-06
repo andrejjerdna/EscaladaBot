@@ -18,6 +18,8 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddSingleton<ISQLiteConnectionFactory>(s =>
     new SQLiteConnectionFactory("Data Source=escalabot.db"));
 
+builder.Services.AddSingleton<IRepositoryFactory, RepositoryFactory>();
+
 builder.Services.AddSingleton(new BasicAWSCredentials(
     SecretsHelper.GetS3AccessKey, SecretsHelper.GetS3SecretAccessKey));
 
@@ -65,5 +67,8 @@ builder.Services.AddHostedService<TelegramHostedService>();
 builder.Services.AddLogging(configure => configure.AddSerilog());
 
 using var host = builder.Build();
+
+var factory = host.Services.GetService<IRepositoryFactory>();
+await factory?.Build()!;
 
 await host.RunAsync();
