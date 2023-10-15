@@ -16,7 +16,7 @@ using Serilog;
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Services.AddSingleton<IConnectionFactory>(s =>
-    new PostgreConnectionFactory(SecretsHelper.PostgreConnectionString));
+    new PostgresConnectionFactory(SecretsHelper.PostgreConnectionString));
 
 builder.Services.AddSingleton<IRepositoryFactory, RepositoryFactory>();
 

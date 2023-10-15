@@ -32,6 +32,6 @@ public static class SecretsHelper
 
     public static string PostgreConnectionString
         => Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING")
-           ?? Configuration.GetValue<string>("ConnectionString:PostgreConnectionString")
+           ?? Configuration.GetValue<string>("ConnectionString:PostgresConnectionString")
            ?? throw new Exception();
 }
