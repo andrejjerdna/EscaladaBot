@@ -1,6 +1,5 @@
 ﻿using EscaladaApi.Contracts;
 using EscaladaBot.Contracts;
-using EscaladaBot.Services.Contexts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EscaladaBot.Services;

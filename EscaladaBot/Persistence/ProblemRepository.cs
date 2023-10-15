@@ -1,25 +1,26 @@
 ﻿using Dapper;
 using EscaladaBot.Contracts;
 using EscaladaBot.Services.Models;
-using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 
 namespace EscaladaBot.Persistence;
 
 public class ProblemRepository : IProblemRepository
 {
-    private readonly ISQLiteConnectionFactory _connectionFactory;
+    private readonly IConnectionFactory _connectionFactory;
+    private readonly ILogger<ProblemRepository> _logger;
 
-    public ProblemRepository(ISQLiteConnectionFactory connectionFactory)
+    public ProblemRepository(IConnectionFactory connectionFactory, ILogger<ProblemRepository> logger)
     {
         _connectionFactory = connectionFactory;
+        _logger = logger;
     }
 
     public async Task<int> AddTrace(CreateTraceRequest request)
     {
-        SqliteConnection connection = null;
         try
         {
-            connection = _connectionFactory.GetConnection();
+            var connection = _connectionFactory.GetConnection();
 
             return await connection.QuerySingleAsync<int>(
                 @"INSERT INTO problem (author, file_id, timeStamp) 
@@ -28,29 +29,22 @@ public class ProblemRepository : IProblemRepository
                 new
                 {
                     author = request.Author, 
-                    fileId = request.FileId.ToString(), 
+                    fileId = request.FileId, 
                     timeStamp = request.TimeStamp
                 });
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogWarning("Problem has not been added! Exception: {0}", e.Message);
             return -1;
-        }
-        finally
-        {
-            await connection?.CloseAsync();
         }
     }
 
     public async Task<Problem> GetTrace(int problemId)
     {
-        SqlMapper.AddTypeHandler(new MySqlGuidTypeHandler());
-        
-        SqliteConnection connection = null;
         try
         {
-            connection = _connectionFactory.GetConnection();
+            var connection = _connectionFactory.GetConnection();
 
             return await connection.QueryFirstOrDefaultAsync<Problem>(
                 @"SELECT id, author, file_id AS FileId, timeStamp
@@ -63,12 +57,8 @@ public class ProblemRepository : IProblemRepository
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogWarning("Problem not found! Exception: {0}", e.Message);
             return null;
-        }
-        finally
-        {
-            await connection?.CloseAsync();
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Telegram.Bot;
 
-namespace EscaladaApi.Contracts;
+namespace EscaladaBot.Contracts;
 
 public interface ITelegramConnectionFactory
 {

@@ -15,8 +15,8 @@ using Serilog;
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Services.AddSingleton<ISQLiteConnectionFactory>(s =>
-    new SQLiteConnectionFactory("Data Source=escalabot.db"));
+builder.Services.AddSingleton<IConnectionFactory>(s =>
+    new PostgreConnectionFactory(SecretsHelper.PostgreConnectionString));
 
 builder.Services.AddSingleton<IRepositoryFactory, RepositoryFactory>();
 
@@ -31,7 +31,6 @@ builder.Services.Decorate<ITelegramBotHandler, TelegramBotCallBackHandler>();
 builder.Services.Decorate<ITelegramBotHandler, TelegramBotSubscribeHandler>();
 
 builder.Services.AddSingleton<IContext, CreationContext>();
-builder.Services.AddSingleton<ITraceInfoViewer, TraceInfoViewer>();
 
 builder.Services.AddSingleton<ICommandBuilder, CommandBuilder>();
 

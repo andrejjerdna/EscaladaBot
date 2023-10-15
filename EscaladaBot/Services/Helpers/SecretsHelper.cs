@@ -29,5 +29,9 @@ public static class SecretsHelper
         => Environment.GetEnvironmentVariable("S3_BUCKET")
            ?? Configuration.GetValue<string>("S3:Bucket")
            ?? throw new Exception();
-    
+
+    public static string PostgreConnectionString
+        => Environment.GetEnvironmentVariable("POSTGRES_CONNECTION_STRING")
+           ?? Configuration.GetValue<string>("ConnectionString:PostgreConnectionString")
+           ?? throw new Exception();
 }
