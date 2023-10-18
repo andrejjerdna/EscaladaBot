@@ -1,7 +1,5 @@
-﻿using System.Data;
-using Dapper;
+﻿using Dapper;
 using EscaladaBot.Contracts;
-using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
 namespace EscaladaBot.Persistence;
@@ -22,9 +20,10 @@ public sealed class AdminRepository : IAdminRepository
         try
         {
             var connection = _connectionFactory.GetConnection();
+            
+            var result = await connection.QueryAsync<long>(@"SELECT chat_id FROM public.admin");
 
-            return (await connection.QueryAsync<long>(
-                @"SELECT chat_id FROM admin")).ToArray();
+            return result.ToArray();
         }
         catch (Exception e)
         {

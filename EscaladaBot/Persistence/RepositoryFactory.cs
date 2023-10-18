@@ -1,6 +1,5 @@
 ﻿using Dapper;
 using EscaladaBot.Contracts;
-using Microsoft.Data.Sqlite;
 
 namespace EscaladaBot.Persistence;
 
@@ -23,7 +22,7 @@ public sealed class RepositoryFactory : IRepositoryFactory
                 @"
 CREATE TABLE IF NOT EXISTS problem_creator_state
 (
-    chat_id BIGSERIAL UNIQUE NOT NULL PRIMARY KEY,
+    chat_id BIGINT UNIQUE NOT NULL PRIMARY KEY,
     trace_creator_state INTEGER NOT NULL,
     problem_id INTEGER NOT NULL,
     update_at TIMESTAMP WITH TIME ZONE NOT NULL
@@ -39,13 +38,13 @@ CREATE TABLE IF NOT EXISTS problem
 
 CREATE TABLE IF NOT EXISTS subscribe_user
 (
-    chat_id BIGSERIAL UNIQUE NOT NULL PRIMARY KEY,
+    chat_id BIGINT UNIQUE NOT NULL PRIMARY KEY,
     user_name VARCHAR(300)
 );
 
 CREATE TABLE IF NOT EXISTS admin
 (
-    chat_id BIGSERIAL UNIQUE NOT NULL PRIMARY KEY,
+    chat_id BIGINT UNIQUE NOT NULL PRIMARY KEY,
     user_name VARCHAR(300)
 );");
         }

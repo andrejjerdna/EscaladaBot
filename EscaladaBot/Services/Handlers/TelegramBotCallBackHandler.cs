@@ -64,6 +64,6 @@ public sealed class TelegramBotCallBackHandler : ITelegramBotHandler
 
     private static string GetUserLogin(string login)
     {
-        return string.IsNullOrWhiteSpace(login) ? string.Empty : $"(@{GetUserLogin(login)})";
+        return string.IsNullOrWhiteSpace(login) ? string.Empty : $"(@{login})";
     }
 }
