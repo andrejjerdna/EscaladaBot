@@ -26,11 +26,11 @@ public sealed class ProblemViewer : IProblemViewer
 
         if (problem == null)
             return;
-
-        var files = await _fileStore.GetFiles(problem.FileId);
         
         foreach (var chatId in chatIds)
         {
+            var files = await _fileStore.GetFiles(problem.FileId);
+            
             foreach (var file in files)
             {
                 await botClient.SendPhotoAsync(
