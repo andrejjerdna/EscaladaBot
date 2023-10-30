@@ -61,4 +61,21 @@ public class ProblemRepository : IProblemRepository
             return null;
         }
     }
+
+    public async Task<IReadOnlyCollection<Problem>> GetAllProblems()
+    {
+        try
+        {
+            var connection = _connectionFactory.GetConnection();
+
+            return (await connection.QueryAsync<Problem>(
+                @"SELECT id, author, file_id AS FileId, timeStamp
+                        FROM problem;")).ToArray();
+        }
+        catch (Exception e)
+        {
+            _logger.LogWarning("Problems not found! Exception: {0}", e.Message);
+            return (IReadOnlyCollection<Problem>)Array.Empty<IReadOnlyCollection<Problem>>();
+        }
+    }
 }

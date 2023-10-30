@@ -29,15 +29,18 @@ builder.Services.AddSingleton<ITelegramConnectionFactory>(s =>
 builder.Services.AddSingleton<ITelegramBotHandler, TelegramBotHandler>();
 builder.Services.Decorate<ITelegramBotHandler, TelegramBotCallBackHandler>();
 builder.Services.Decorate<ITelegramBotHandler, TelegramBotSubscribeHandler>();
+builder.Services.Decorate<ITelegramBotHandler, TelegramBotVoiceCallBackHandler>();
 
 builder.Services.AddSingleton<IContext, CreationContext>();
 
 builder.Services.AddSingleton<ICommandBuilder, CommandBuilder>();
 
 builder.Services.AddSingleton<IRegisterRepository, RegisterRepository>();
+builder.Services.AddSingleton<IVoiceRepository, VoiceRepository>();
 builder.Services.AddSingleton<IProblemRepository, ProblemRepository>();
 builder.Services.AddSingleton<ISubscribeRepository, SubscribeRepository>();
 builder.Services.AddSingleton<IAdminRepository, AdminRepository>();
+builder.Services.AddSingleton<IStatisticsRepository, StatisticsRepository>();
 
 builder.Services.AddTransient<IFileStore, FileStore>();
 
@@ -54,12 +57,16 @@ builder.Services.AddTransient<GetDatesCommand>();
 builder.Services.AddTransient<UnknownCommand>();
 builder.Services.AddTransient<ViewProblemCommand>();
 builder.Services.AddTransient<WelcomeCommand>();
+builder.Services.AddTransient<AddVoiceCommand>();
+builder.Services.AddTransient<ViewStatisticsCommand>();
 
 builder.Services.AddTransient<CreationContext>();
 builder.Services.AddTransient<RegisterContext>();
 builder.Services.AddTransient<UnknownContext>();
 builder.Services.AddTransient<ViewProblemContext>();
 builder.Services.AddTransient<WelcomeContext>();
+builder.Services.AddTransient<VoiceContext>();
+builder.Services.AddTransient<ViewStatisticsContext>();
 
 builder.Services.AddHostedService<TelegramHostedService>();
 

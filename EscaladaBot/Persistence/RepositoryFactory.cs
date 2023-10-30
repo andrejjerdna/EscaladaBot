@@ -46,6 +46,12 @@ CREATE TABLE IF NOT EXISTS admin
 (
     chat_id BIGINT UNIQUE NOT NULL PRIMARY KEY,
     user_name VARCHAR(300)
+);
+
+CREATE TABLE IF NOT EXISTS problem_statistics
+(
+    problem_id BIGINT UNIQUE NOT NULL PRIMARY KEY,
+    voice_count INTEGER NOT NULL
 );");
         }
         catch(Exception e)

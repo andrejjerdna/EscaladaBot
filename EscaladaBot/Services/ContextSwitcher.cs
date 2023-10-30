@@ -38,6 +38,16 @@ public sealed class ContextSwitcher : IContextSwitcher
         {
             return _commandBuilder.GetContext<RegisterContext>();
         }
+        
+        if (data.BotCommand == "/add_voice")
+        {
+            return _commandBuilder.GetContext<VoiceContext>();
+        }
+        
+        if (data.BotCommand == "/statistics")
+        {
+            return _commandBuilder.GetContext<ViewStatisticsContext>();
+        }
 
         if (data.CallbackQueryMessage != null)
         {

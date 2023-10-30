@@ -39,7 +39,10 @@ public sealed class TelegramBotCallBackHandler : ITelegramBotHandler
         var model = _registerRepository.GetRegisterModel(guid);
 
         if (model == null)
+        {
+            await _nextHandler.HandleUpdateAsync(botClient, update, cancellationToken);
             return;
+        }
 
         var admins = await _adminRepository.GetAdmins();
 
