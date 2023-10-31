@@ -12,18 +12,16 @@ public sealed class StatisticsRepository : IStatisticsRepository
         _connectionFactory = connectionFactory;
     }
 
-    public async Task AddVoice(long problemId)
+    public async Task AddVoice(long problemId, long chatId)
     {
         try
         {
             var connection = _connectionFactory.GetConnection();
 
             await connection.ExecuteAsync(
-                @"INSERT INTO public.problem_statistics (problem_id, voice_count)
-                    VALUES (@problemId, 1)
-                    ON CONFLICT (problem_id)
-                    DO UPDATE SET voice_count = problem_statistics.voice_count + 1",
-                new { problemId = problemId });
+                @"INSERT INTO public.problem_statistics (problem_id, chat_id, timestamp)
+                    VALUES (@problemId, @chatId, @timestamp);",
+                new { problemId, chatId, timestamp = DateTime.UtcNow });
         }
         catch (Exception e)
         {
@@ -38,9 +36,10 @@ public sealed class StatisticsRepository : IStatisticsRepository
             var connection = _connectionFactory.GetConnection();
 
             var result = await connection.QueryAsync<(long problemId, int voiceCount)>(
-                @"SELECT problem_id, voice_count 
+                @"SELECT problem_id, COUNT(*) 
                 FROM public.problem_statistics
-                ORDER BY voice_count DESC
+                GROUP BY problem_id
+                ORDER BY COUNT(problem_id) DESC
                 LIMIT @count",
                 new { count = count });
 

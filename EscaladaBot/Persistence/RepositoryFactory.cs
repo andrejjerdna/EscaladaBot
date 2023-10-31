@@ -50,8 +50,9 @@ CREATE TABLE IF NOT EXISTS admin
 
 CREATE TABLE IF NOT EXISTS problem_statistics
 (
-    problem_id BIGINT UNIQUE NOT NULL PRIMARY KEY,
-    voice_count INTEGER NOT NULL
+    problem_id BIGINT NOT NULL,
+    chat_id BIGINT NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL
 );");
         }
         catch(Exception e)

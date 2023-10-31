@@ -41,11 +41,11 @@ public sealed class TelegramBotVoiceCallBackHandler : ITelegramBotHandler
         if (model == null)
             return;
 
-        await _statisticsRepository.AddVoice(model.ProblemId);
+        await _statisticsRepository.AddVoice(model.ProblemId, model.ChatId);
 
         await botClient.SendTextMessageAsync(
             model.ChatId,
-            $"Спасибо, что отметил трассу {model.ProblemId}!",
+            $"Спасибо! Ты отметил трассу {model.ProblemId}!",
             cancellationToken: cancellationToken);
     }
 

@@ -56,13 +56,23 @@ public class ViewStatisticsCommand : IBotCommand
             return "Нет трасс с голосами";
         }
 
+        var maxProblemIdLenght = problems
+            .Select(p => p.problemId.ToString())
+            .Max(p => p.Length);
+
         var stringBuilder = new StringBuilder();
         
         stringBuilder.AppendLine($"Трасса - Кол-во. голосов");
 
         foreach (var problem in problems)
         {
-            stringBuilder.AppendLine($"{problem.problemId} - {problem.voiceCount}");
+            var lenght = maxProblemIdLenght - problem.problemId.ToString().Length;
+
+            var problemString = string.Join(string.Empty, 
+                                    new List<string>{problem.problemId.ToString()}
+                                        .Concat(Enumerable.Range(0, lenght).Select(r => " ")));
+            
+            stringBuilder.AppendLine($"{problemString} - {problem.voiceCount}");
         }
 
         return stringBuilder.ToString();
