@@ -41,7 +41,7 @@ public sealed class AddVoiceCommand : IBotCommand
         
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "Выбери трассы которые пролез сегодня",
+            text: "Выбери трассы которые пролез сегодня или которые пробовал",
             replyMarkup: inlineKeyboard,
             cancellationToken: CancellationToken.None);
 
