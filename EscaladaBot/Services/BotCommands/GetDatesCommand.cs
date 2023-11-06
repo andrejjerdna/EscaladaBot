@@ -1,4 +1,5 @@
-﻿using EscaladaApi.Contracts;
+﻿using System.Globalization;
+using EscaladaApi.Contracts;
 using EscaladaBot.Contracts;
 using EscaladaBot.Services.Extensions;
 using EscaladaBot.Services.Models;
@@ -18,6 +19,7 @@ public sealed class GetDatesCommand : IBotCommand
     }
 
     public string Name => nameof(GetDatesCommand);
+    
     public async Task<bool> Run(ITelegramBotClient botClient, Update update)
     {
         var chatId = update?.Message?.Chat.Id;
@@ -29,7 +31,8 @@ public sealed class GetDatesCommand : IBotCommand
 
         var filtredDays = Enumerable.Range(0, 30)
             .Select(r => now.AddDays(r))
-            .Where(d => d.DayOfWeek == DayOfWeek.Thursday)
+            .Where(d => d.DayOfWeek 
+                is DayOfWeek.Thursday or DayOfWeek.Monday or DayOfWeek.Friday)
             .Select(d 
                 => InlineKeyboardButton.WithCallbackData(
                     text: GetBeautifyDate(d), 
@@ -44,7 +47,7 @@ public sealed class GetDatesCommand : IBotCommand
         
         await botClient.SendTextMessageAsync(
             chatId: chatId,
-            text: "В какой день ты хочешь прийти?",
+            text: "Мы сейчас занимаемся по понедельникам, четвергам и пятницам в 18-30. В какой день ты хочешь прийти?",
             replyMarkup: inlineKeyboard,
             cancellationToken: CancellationToken.None);
 
@@ -68,7 +71,7 @@ public sealed class GetDatesCommand : IBotCommand
 
     private static string GetBeautifyDate(DateTime dateTime)
     {
-        return dateTime.ToString("M");
+        return dateTime.ToString("ddd d MMM", CultureInfo.CreateSpecificCulture("ru-RU"));
     }
     
     private string GetCommandDate(DateTime dateTime, long chatId, string user, string login)

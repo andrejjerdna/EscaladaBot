@@ -39,7 +39,10 @@ public sealed class TelegramBotVoiceCallBackHandler : ITelegramBotHandler
         var model = _voiceRepository.GetVoiceModel(guid);
 
         if (model == null)
+        {
+            await _nextHandler.HandleUpdateAsync(botClient, update, cancellationToken);
             return;
+        }
 
         await _statisticsRepository.AddVoice(model.ProblemId, model.ChatId);
 
