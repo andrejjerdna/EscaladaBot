@@ -1,5 +1,4 @@
-﻿using EscaladaApi.Contracts;
-using EscaladaBot.Contracts;
+﻿using EscaladaBot.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EscaladaBot.Services;

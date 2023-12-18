@@ -1,4 +1,4 @@
-﻿using EscaladaApi.Contracts;
+﻿using EscaladaBot.Contracts;
 using EscaladaBot.Services.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -18,7 +18,7 @@ public sealed class WelcomeCommand : IBotCommand
         await botClient.SendMessage(chatId.Value, 
             @"Привет! 
 Это бот скалодрома Эскалада.
-Тут ты можешь посмотреть фото трасс и сообщить о том, что ты хочешь прийти на занятие");
+Тут ты можешь посмотреть фото трасс, узнать о том, когда у нас будут проходить ");
 
         return true;
     }

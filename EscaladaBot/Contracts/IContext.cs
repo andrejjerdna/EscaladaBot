@@ -1,6 +1,4 @@
-﻿using EscaladaApi.Contracts;
-
-namespace EscaladaBot.Contracts;
+﻿namespace EscaladaBot.Contracts;
 
 public interface IContext
 {

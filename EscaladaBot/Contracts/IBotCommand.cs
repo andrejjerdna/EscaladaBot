@@ -1,7 +1,7 @@
 ﻿using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace EscaladaApi.Contracts;
+namespace EscaladaBot.Contracts;
 
 public interface IBotCommand
 {

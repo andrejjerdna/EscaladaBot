@@ -1,5 +1,4 @@
 ﻿using Amazon.Runtime;
-using EscaladaApi.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using EscaladaApi.Persistence;

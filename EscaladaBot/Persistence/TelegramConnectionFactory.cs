@@ -1,5 +1,4 @@
-﻿using EscaladaApi.Contracts;
-using EscaladaBot.Contracts;
+﻿using EscaladaBot.Contracts;
 using Telegram.Bot;
 
 namespace EscaladaApi.Persistence;

@@ -1,5 +1,4 @@
-﻿using EscaladaApi.Contracts;
-using EscaladaBot.Contracts;
+﻿using EscaladaBot.Contracts;
 using EscaladaBot.Services.Extensions;
 using Telegram.Bot;
 using Telegram.Bot.Types;

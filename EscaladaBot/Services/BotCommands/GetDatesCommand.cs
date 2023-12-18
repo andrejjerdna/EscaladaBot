@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using EscaladaApi.Contracts;
 using EscaladaBot.Contracts;
 using EscaladaBot.Services.Extensions;
 using EscaladaBot.Services.Models;

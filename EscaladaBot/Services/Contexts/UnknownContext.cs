@@ -1,5 +1,4 @@
-﻿using EscaladaApi.Contracts;
-using EscaladaBot.Contracts;
+﻿using EscaladaBot.Contracts;
 using EscaladaBot.Services.BotCommands;
 
 namespace EscaladaBot.Services.Contexts;

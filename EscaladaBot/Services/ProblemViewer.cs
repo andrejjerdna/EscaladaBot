@@ -27,16 +27,30 @@ public sealed class ProblemViewer : IProblemViewer
         if (problem == null)
             return;
         
-        foreach (var chatId in chatIds)
+        var files = await _fileStore.GetFiles(problem.FileId);
+
+        var fileId = string.Empty;
+        
+        foreach (var file in files)
         {
-            var files = await _fileStore.GetFiles(problem.FileId);
-            
-            foreach (var file in files)
+            foreach (var chatId in chatIds)
             {
-                await botClient.SendPhotoAsync(
+                if (!string.IsNullOrEmpty(fileId))
+                {
+                    await botClient.SendPhotoAsync(
+                        chatId: chatId,
+                        photo: InputFile.FromFileId(fileId),
+                        caption: GetCaption(problem, isNewProblem));
+                    
+                    continue;
+                }
+                
+                var message = await botClient.SendPhotoAsync(
                     chatId: chatId,
                     photo: InputFile.FromStream(stream: file),
                     caption: GetCaption(problem, isNewProblem));
+
+                fileId = message.Photo?.MaxBy(p => p.FileSize)?.FileId;
             }
         }
     }
